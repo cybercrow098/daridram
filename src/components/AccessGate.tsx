@@ -2,8 +2,8 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { DaemonLogo } from './DaemonLogo';
 import {
   Shield, Lock, Eye, Server, AlertTriangle, CheckCircle, XCircle,
-  Fingerprint, Wifi, Terminal, Send, Database, Bug,
-  CreditCard, Layers, Zap, Crown, ArrowRight, Sparkles
+  Fingerprint, Wifi, Clock, Terminal, Send, Database, Bug,
+  CreditCard, Layers, Zap, Crown, MessageCircle
 } from 'lucide-react';
 
 interface AccessGateProps {
@@ -37,12 +37,12 @@ const VERIFICATION_STEPS = [
 ];
 
 const FEATURES = [
-  { icon: Database, label: 'Premium Databases' },
-  { icon: Bug, label: 'Private Exploits' },
-  { icon: Layers, label: 'Combo Lists' },
-  { icon: CreditCard, label: 'Carding Tools' },
-  { icon: Zap, label: 'In-house Tools' },
-  { icon: Eye, label: 'Stealer Logs' },
+  { icon: Database, label: 'Premium Databases', desc: 'Fresh & exclusive leaks' },
+  { icon: Bug, label: 'Private Exploits', desc: 'Zero-day vulnerabilities' },
+  { icon: Layers, label: 'Combo Lists', desc: 'High-quality credentials' },
+  { icon: CreditCard, label: 'Carding Tools', desc: 'Security research tools' },
+  { icon: Zap, label: 'In-house Tools', desc: 'Custom built utilities' },
+  { icon: Eye, label: 'Stealer Logs', desc: 'Curated data streams' },
 ];
 
 export function AccessGate({ onVerify, isVerifying, error, onErrorClear }: AccessGateProps) {
@@ -52,10 +52,18 @@ export function AccessGate({ onVerify, isVerifying, error, onErrorClear }: Acces
   const [verificationStep, setVerificationStep] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
   const [keyChars, setKeyChars] = useState<string[]>([]);
+  const [activeFeature, setActiveFeature] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     inputRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveFeature(prev => (prev + 1) % FEATURES.length);
+    }, 3000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -107,15 +115,17 @@ export function AccessGate({ onVerify, isVerifying, error, onErrorClear }: Acces
 
   const getCharAnimation = useCallback((index: number) => {
     if (isVerifying) {
+      const delay = index * 0.03;
       return {
         animation: `pulse 0.5s ease-in-out infinite`,
-        animationDelay: `${index * 0.03}s`,
+        animationDelay: `${delay}s`,
       };
     }
     if (showSuccess) {
+      const delay = index * 0.02;
       return {
         animation: `successPop 0.3s ease-out forwards`,
-        animationDelay: `${index * 0.02}s`,
+        animationDelay: `${delay}s`,
         color: '#10b981',
       };
     }
@@ -130,7 +140,10 @@ export function AccessGate({ onVerify, isVerifying, error, onErrorClear }: Acces
   }, [isVerifying, showSuccess, showError]);
 
   return (
-    <div className="min-h-screen relative overflow-hidden" style={{ background: '#050507' }}>
+    <div
+      className="min-h-screen flex flex-col relative overflow-hidden"
+      style={{ background: 'var(--bg-base)' }}
+    >
       <style>{`
         @keyframes pulse {
           0%, 100% { opacity: 1; transform: scale(1); }
@@ -146,15 +159,29 @@ export function AccessGate({ onVerify, isVerifying, error, onErrorClear }: Acces
           25% { transform: translateX(-4px); }
           75% { transform: translateX(4px); }
         }
+        @keyframes scanLine {
+          0% { transform: translateY(-100%); opacity: 0; }
+          50% { opacity: 1; }
+          100% { transform: translateY(100%); opacity: 0; }
+        }
+        @keyframes glow {
+          0%, 100% { box-shadow: 0 0 20px rgba(220, 38, 38, 0.3); }
+          50% { box-shadow: 0 0 40px rgba(220, 38, 38, 0.6); }
+        }
+        @keyframes successGlow {
+          0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+          70% { box-shadow: 0 0 0 20px rgba(16, 185, 129, 0); }
+          100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
         @keyframes float {
           0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-30px) rotate(3deg); }
+          50% { transform: translateY(-20px) rotate(2deg); }
         }
-        @keyframes floatReverse {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(20px) rotate(-2deg); }
-        }
-        @keyframes morph {
+        @keyframes morphBlob {
           0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
           25% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
           50% { border-radius: 50% 60% 30% 60% / 30% 60% 70% 40%; }
@@ -164,327 +191,366 @@ export function AccessGate({ onVerify, isVerifying, error, onErrorClear }: Acces
           0% { background-position: -200% 0; }
           100% { background-position: 200% 0; }
         }
-        @keyframes orbit {
-          from { transform: rotate(0deg) translateX(150px) rotate(0deg); }
-          to { transform: rotate(360deg) translateX(150px) rotate(-360deg); }
-        }
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes glow {
-          0%, 100% { filter: drop-shadow(0 0 20px rgba(255, 71, 87, 0.4)); }
-          50% { filter: drop-shadow(0 0 40px rgba(255, 71, 87, 0.6)); }
-        }
-        @keyframes scan {
-          0% { top: 0; opacity: 0; }
+        @keyframes borderGlow {
+          0%, 100% { opacity: 0.5; }
           50% { opacity: 1; }
-          100% { top: 100%; opacity: 0; }
         }
-        .float { animation: float 8s ease-in-out infinite; }
-        .float-reverse { animation: floatReverse 7s ease-in-out infinite; }
-        .morph { animation: morph 12s ease-in-out infinite; }
+        .scan-line {
+          animation: scanLine 2s ease-in-out infinite;
+        }
+        .glow-animation {
+          animation: glow 1.5s ease-in-out infinite;
+        }
+        .success-glow {
+          animation: successGlow 1s ease-out;
+        }
+        .fade-in-up {
+          animation: fadeInUp 0.3s ease-out forwards;
+        }
+        .float-animation {
+          animation: float 6s ease-in-out infinite;
+        }
+        .morph-blob {
+          animation: morphBlob 8s ease-in-out infinite;
+        }
         .shimmer-text {
-          background: linear-gradient(90deg, #ff8a94 0%, #ff4757 25%, #ffa726 50%, #ff4757 75%, #ff8a94 100%);
+          background: linear-gradient(90deg, var(--accent-tertiary) 0%, var(--accent-primary) 25%, var(--accent-warm) 50%, var(--accent-primary) 75%, var(--accent-tertiary) 100%);
           background-size: 200% auto;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
-          animation: shimmer 4s linear infinite;
+          animation: shimmer 3s linear infinite;
         }
-        .fade-up { animation: fadeUp 0.5s ease-out forwards; }
-        .glow-pulse { animation: glow 2s ease-in-out infinite; }
+        .border-glow {
+          animation: borderGlow 2s ease-in-out infinite;
+        }
       `}</style>
 
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
-          className="absolute w-[600px] h-[600px] morph float opacity-30"
+          className="absolute -top-40 -left-40 w-96 h-96 morph-blob opacity-20"
           style={{
-            top: '-15%',
-            left: '-10%',
-            background: 'radial-gradient(circle at 30% 30%, rgba(255, 71, 87, 0.4) 0%, rgba(255, 71, 87, 0.1) 40%, transparent 70%)',
+            background: 'radial-gradient(circle, var(--accent-primary) 0%, transparent 70%)',
             filter: 'blur(60px)',
           }}
         />
         <div
-          className="absolute w-[500px] h-[500px] morph float-reverse opacity-25"
+          className="absolute top-1/4 -right-20 w-80 h-80 morph-blob opacity-15"
           style={{
-            top: '20%',
-            right: '-5%',
-            background: 'radial-gradient(circle at 70% 30%, rgba(255, 167, 38, 0.35) 0%, rgba(255, 167, 38, 0.1) 40%, transparent 70%)',
+            background: 'radial-gradient(circle, var(--accent-warm) 0%, transparent 70%)',
             filter: 'blur(50px)',
-            animationDelay: '-3s',
+            animationDelay: '-4s',
           }}
         />
         <div
-          className="absolute w-[400px] h-[400px] morph float opacity-20"
+          className="absolute bottom-20 left-1/4 w-72 h-72 morph-blob opacity-10"
           style={{
-            bottom: '5%',
-            left: '20%',
-            background: 'radial-gradient(circle at 50% 50%, rgba(0, 212, 255, 0.3) 0%, rgba(0, 212, 255, 0.05) 50%, transparent 70%)',
+            background: 'radial-gradient(circle, var(--accent-cyan) 0%, transparent 70%)',
             filter: 'blur(40px)',
-            animationDelay: '-6s',
+            animationDelay: '-2s',
           }}
         />
 
-        <svg className="absolute inset-0 w-full h-full opacity-[0.03]" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
-              <circle cx="40" cy="40" r="1" fill="#ff4757" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
-
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] opacity-10">
-          <div className="absolute inset-0" style={{ animation: 'orbit 20s linear infinite' }}>
-            <div className="w-2 h-2 rounded-full" style={{ background: 'var(--accent-primary)', boxShadow: '0 0 20px var(--accent-primary)' }} />
-          </div>
-          <div className="absolute inset-0" style={{ animation: 'orbit 25s linear infinite reverse' }}>
-            <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--accent-warm)', boxShadow: '0 0 15px var(--accent-warm)' }} />
-          </div>
-        </div>
+        <div
+          className="absolute inset-0 opacity-[0.02]"
+          style={{
+            backgroundImage: `
+              linear-gradient(var(--accent-primary) 1px, transparent 1px),
+              linear-gradient(90deg, var(--accent-primary) 1px, transparent 1px)
+            `,
+            backgroundSize: '60px 60px',
+          }}
+        />
       </div>
 
-      <div className="relative z-10 min-h-screen flex flex-col">
-        <div className="flex-1 flex flex-col lg:flex-row items-center justify-center px-6 py-16 gap-16 lg:gap-24">
-
-          <div className="w-full max-w-xl lg:max-w-lg fade-up" style={{ animationDelay: '0.1s' }}>
-            <div className="flex items-center gap-4 lg:gap-5 mb-10">
-              <div className="relative shrink-0 glow-pulse">
-                <DaemonLogo size="lg" showText={false} className="lg:hidden" />
-                <DaemonLogo size="xl" showText={false} className="hidden lg:block" />
+      <div className="flex-1 flex flex-col lg:flex-row relative z-10">
+        <div className="lg:w-1/2 flex flex-col justify-center px-6 py-12 lg:px-16 xl:px-24">
+          <div className="max-w-lg mx-auto lg:mx-0 w-full">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="relative">
+                <div
+                  className="absolute inset-0 blur-2xl -z-10 scale-150"
+                  style={{ background: 'var(--glow-primary)' }}
+                />
+                <DaemonLogo size="lg" showText={false} />
               </div>
-              <div className="min-w-0">
-                <h1 className="logo-text text-2xl sm:text-3xl lg:text-4xl tracking-[0.2em] lg:tracking-[0.25em] shimmer-text">
+              <div>
+                <h1 className="logo-text text-2xl tracking-[0.3em] shimmer-text">
                   Daemoncrow
                 </h1>
-                <p className="font-mono text-[10px] sm:text-xs tracking-[0.2em] sm:tracking-[0.3em] uppercase mt-1.5 lg:mt-2 opacity-50" style={{ color: 'var(--text-muted)' }}>
-                  Exclusive Network
+                <p className="font-mono text-[10px] tracking-[0.25em] uppercase mt-1" style={{ color: 'var(--text-subtle)' }}>
+                  Exclusive Access Network
                 </p>
               </div>
             </div>
 
-            <h2 className="text-4xl lg:text-5xl font-bold leading-tight mb-6" style={{ color: 'var(--text-primary)' }}>
-              One Place.<br />
-              <span className="text-gradient">Everything You Need.</span>
-            </h2>
+            <div className="mb-10">
+              <h2 className="text-3xl lg:text-4xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
+                One Platform.
+                <br />
+                <span className="text-gradient">Everything You Need.</span>
+              </h2>
+              <p className="text-base leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+                Your exclusive gateway to premium databases, private exploits, in-house tools,
+                and curated intelligence. Built by researchers, for researchers.
+              </p>
+            </div>
 
-            <p className="text-lg leading-relaxed mb-10 opacity-70" style={{ color: 'var(--text-muted)' }}>
-              Your exclusive gateway to premium databases, private exploits,
-              in-house tools, and curated intelligence.
-            </p>
-
-            <div className="flex flex-wrap gap-3 mb-12">
+            <div className="grid grid-cols-2 gap-3 mb-10">
               {FEATURES.map((feature, index) => {
                 const Icon = feature.icon;
+                const isActive = index === activeFeature;
                 return (
                   <div
                     key={index}
-                    className="group flex items-center gap-2.5 px-4 py-2.5 transition-all duration-300 cursor-default"
+                    className="relative p-4 rounded-2xl transition-all duration-500 cursor-default group"
                     style={{
-                      background: 'linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)',
-                      borderRadius: '100px',
-                      border: '1px solid rgba(255,255,255,0.06)',
+                      background: isActive
+                        ? 'linear-gradient(135deg, rgba(255, 71, 87, 0.15) 0%, rgba(255, 71, 87, 0.05) 100%)'
+                        : 'rgba(255, 255, 255, 0.02)',
+                      border: `1px solid ${isActive ? 'rgba(255, 71, 87, 0.3)' : 'rgba(255, 255, 255, 0.05)'}`,
+                      transform: isActive ? 'scale(1.02)' : 'scale(1)',
                     }}
+                    onMouseEnter={() => setActiveFeature(index)}
                   >
-                    <Icon className="w-4 h-4 transition-colors duration-300 group-hover:text-[var(--accent-primary)]" style={{ color: 'var(--text-subtle)' }} />
-                    <span className="text-sm transition-colors duration-300 group-hover:text-[var(--text-primary)]" style={{ color: 'var(--text-muted)' }}>
-                      {feature.label}
-                    </span>
+                    <div className="flex items-start gap-3">
+                      <div
+                        className="p-2 rounded-xl transition-all duration-300"
+                        style={{
+                          background: isActive
+                            ? 'linear-gradient(135deg, var(--accent-primary), var(--accent-blood))'
+                            : 'var(--bg-tertiary)',
+                        }}
+                      >
+                        <Icon
+                          className="w-4 h-4 transition-colors duration-300"
+                          style={{ color: isActive ? '#fff' : 'var(--text-subtle)' }}
+                        />
+                      </div>
+                      <div>
+                        <p
+                          className="font-medium text-sm transition-colors duration-300"
+                          style={{ color: isActive ? 'var(--text-primary)' : 'var(--text-muted)' }}
+                        >
+                          {feature.label}
+                        </p>
+                        <p
+                          className="text-xs mt-0.5 transition-colors duration-300"
+                          style={{ color: isActive ? 'var(--text-muted)' : 'var(--text-subtle)' }}
+                        >
+                          {feature.desc}
+                        </p>
+                      </div>
+                    </div>
+                    {isActive && (
+                      <div
+                        className="absolute inset-0 rounded-2xl pointer-events-none border-glow"
+                        style={{
+                          background: 'linear-gradient(135deg, rgba(255, 71, 87, 0.1), transparent)',
+                          boxShadow: '0 0 30px rgba(255, 71, 87, 0.1)',
+                        }}
+                      />
+                    )}
                   </div>
                 );
               })}
             </div>
 
             <div
-              className="relative overflow-hidden"
+              className="p-5 rounded-2xl relative overflow-hidden"
               style={{
-                background: 'linear-gradient(135deg, rgba(255, 167, 38, 0.08) 0%, rgba(255, 71, 87, 0.04) 100%)',
-                borderRadius: '24px',
-                padding: '1px',
+                background: 'linear-gradient(135deg, rgba(255, 167, 38, 0.1) 0%, rgba(255, 71, 87, 0.05) 100%)',
+                border: '1px solid rgba(255, 167, 38, 0.2)',
               }}
             >
-              <div
-                className="relative p-6"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(10, 10, 15, 0.9) 0%, rgba(5, 5, 7, 0.95) 100%)',
-                  borderRadius: '23px',
-                }}
-              >
-                <div className="flex items-start gap-5">
-                  <div
-                    className="shrink-0 w-14 h-14 flex items-center justify-center"
-                    style={{
-                      background: 'linear-gradient(135deg, var(--accent-warm) 0%, var(--accent-primary) 100%)',
-                      borderRadius: '16px',
-                    }}
-                  >
-                    <Crown className="w-7 h-7 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-baseline gap-2 mb-1">
-                      <span className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>$45</span>
-                      <span className="text-sm opacity-60" style={{ color: 'var(--text-muted)' }}>/month</span>
-                    </div>
-                    <p className="text-xs uppercase tracking-wider mb-4 opacity-50" style={{ color: 'var(--text-muted)' }}>
-                      Premium Membership
-                    </p>
-                    <div className="space-y-2.5">
-                      {[
-                        'Dedicated servers & 24/7 uptime',
-                        'Exclusive private tools & zero-days',
-                        'Fresh daily updates & intel'
-                      ].map((item, i) => (
-                        <div key={i} className="flex items-center gap-2.5">
-                          <div className="w-5 h-5 flex items-center justify-center" style={{ borderRadius: '50%', background: 'rgba(16, 185, 129, 0.15)' }}>
-                            <CheckCircle className="w-3 h-3" style={{ color: '#10b981' }} />
-                          </div>
-                          <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{item}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+              <div className="flex items-center gap-4 mb-3">
+                <div
+                  className="p-2.5 rounded-xl"
+                  style={{ background: 'linear-gradient(135deg, var(--accent-warm), var(--accent-primary))' }}
+                >
+                  <Crown className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <p className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>
+                    $45<span className="text-sm font-normal" style={{ color: 'var(--text-muted)' }}>/month</span>
+                  </p>
+                  <p className="text-xs" style={{ color: 'var(--text-subtle)' }}>Premium Membership</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-3.5 h-3.5" style={{ color: '#10b981' }} />
+                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                    Dedicated server infrastructure & 24/7 uptime
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-3.5 h-3.5" style={{ color: '#10b981' }} />
+                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                    Exclusive private tools & zero-day access
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-3.5 h-3.5" style={{ color: '#10b981' }} />
+                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                    Fresh daily updates & curated intelligence
+                  </span>
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
-          <div className="w-full max-w-md fade-up" style={{ animationDelay: '0.3s' }}>
+        <div className="lg:w-1/2 flex items-center justify-center px-6 py-12 lg:px-16">
+          <div className="w-full max-w-md">
             <form onSubmit={handleSubmit}>
               <div
-                className="relative overflow-hidden"
+                className={`relative rounded-3xl overflow-hidden transition-all duration-500 ${
+                  isVerifying ? 'glow-animation' : ''
+                } ${showSuccess ? 'success-glow' : ''}`}
                 style={{
-                  background: showSuccess
-                    ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%)'
-                    : showError
-                    ? 'linear-gradient(135deg, rgba(255, 71, 87, 0.15) 0%, rgba(255, 71, 87, 0.05) 100%)'
-                    : 'linear-gradient(135deg, rgba(255, 71, 87, 0.1) 0%, rgba(255, 167, 38, 0.05) 100%)',
-                  borderRadius: '32px',
-                  padding: '1px',
+                  background: 'linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%)',
+                  boxShadow: showError
+                    ? '0 25px 80px -20px rgba(255, 71, 87, 0.4), 0 0 0 1px var(--accent-primary)'
+                    : showSuccess
+                    ? '0 25px 80px -20px rgba(16, 185, 129, 0.4), 0 0 0 1px #10b981'
+                    : '0 25px 80px -20px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border-subtle)',
                 }}
               >
-                <div
-                  className="relative backdrop-blur-xl"
-                  style={{
-                    background: 'linear-gradient(180deg, rgba(15, 15, 20, 0.95) 0%, rgba(10, 10, 12, 0.98) 100%)',
-                    borderRadius: '31px',
-                  }}
-                >
-                  {isVerifying && (
-                    <div
-                      className="absolute left-0 right-0 h-0.5"
-                      style={{
-                        background: 'linear-gradient(90deg, transparent, var(--accent-primary), transparent)',
-                        animation: 'scan 1.5s ease-in-out infinite',
-                      }}
-                    />
-                  )}
+                {isVerifying && (
+                  <div
+                    className="absolute left-0 right-0 h-1 scan-line"
+                    style={{ background: 'linear-gradient(90deg, transparent, var(--accent-primary), transparent)' }}
+                  />
+                )}
 
-                  <div className="p-8 pb-6">
-                    <div className="flex items-center justify-between mb-8">
-                      <div className="flex items-center gap-4">
-                        <div
-                          className="w-12 h-12 flex items-center justify-center"
-                          style={{
-                            background: showSuccess
-                              ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
-                              : 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-blood) 100%)',
-                            borderRadius: '14px',
-                          }}
-                        >
-                          {showSuccess ? (
-                            <CheckCircle className="w-6 h-6 text-white" />
-                          ) : showError ? (
-                            <XCircle className="w-6 h-6 text-white" />
-                          ) : (
-                            <Fingerprint className="w-6 h-6 text-white" style={{ animation: isVerifying ? 'pulse 1s infinite' : 'none' }} />
-                          )}
-                        </div>
-                        <div>
-                          <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>Access Portal</p>
-                          <p className="text-xs opacity-50" style={{ color: 'var(--text-muted)' }}>Enter activation key</p>
-                        </div>
-                      </div>
+                <div
+                  className="absolute top-0 left-0 right-0 h-px"
+                  style={{
+                    background: showSuccess
+                      ? 'linear-gradient(90deg, transparent, #10b981, transparent)'
+                      : 'linear-gradient(90deg, transparent, var(--accent-primary), transparent)',
+                    opacity: 0.5,
+                  }}
+                />
+
+                <div className="p-8">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
                       <div
-                        className="flex items-center gap-1.5 px-3 py-1.5"
+                        className="w-10 h-10 rounded-2xl flex items-center justify-center"
                         style={{
-                          background: 'rgba(16, 185, 129, 0.1)',
-                          borderRadius: '100px',
+                          background: showSuccess
+                            ? 'linear-gradient(135deg, #10b981, #059669)'
+                            : 'linear-gradient(135deg, var(--accent-primary), var(--accent-blood))',
                         }}
                       >
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" style={{ boxShadow: '0 0 8px #10b981' }} />
-                        <span className="text-[10px] font-mono uppercase tracking-wider" style={{ color: '#10b981' }}>Secure</span>
+                        {showSuccess ? (
+                          <CheckCircle className="w-5 h-5 text-white" />
+                        ) : showError ? (
+                          <XCircle className="w-5 h-5 text-white" />
+                        ) : (
+                          <Fingerprint
+                            className="w-5 h-5 text-white"
+                            style={{ animation: isVerifying ? 'pulse 1s infinite' : 'none' }}
+                          />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>
+                          Access Portal
+                        </p>
+                        <p className="text-xs" style={{ color: 'var(--text-subtle)' }}>
+                          Enter your activation key
+                        </p>
                       </div>
                     </div>
-
-                    <div className="mb-6">
-                      {(isVerifying || showSuccess || showError) && key.length > 0 ? (
-                        <div
-                          className="w-full px-6 py-5 font-mono text-sm text-center tracking-[0.2em] flex justify-center items-center gap-0.5 flex-wrap min-h-[62px]"
-                          style={{
-                            background: 'rgba(255,255,255,0.02)',
-                            borderRadius: '16px',
-                            border: '1px solid rgba(255,255,255,0.05)',
-                          }}
-                        >
-                          {keyChars.map((char, index) => (
-                            <span
-                              key={index}
-                              className="inline-block transition-all"
-                              style={{
-                                color: showError ? 'var(--accent-primary)' : showSuccess ? '#10b981' : 'var(--text-primary)',
-                                ...getCharAnimation(index),
-                              }}
-                            >
-                              {char}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <input
-                          ref={inputRef}
-                          type="text"
-                          value={key}
-                          onChange={handleKeyChange}
-                          placeholder="ENTER ACCESS KEY"
-                          disabled={isVerifying || showSuccess}
-                          className="w-full px-6 py-5 font-mono text-sm text-center tracking-[0.2em] focus:outline-none transition-all duration-300 placeholder:opacity-30"
-                          style={{
-                            background: 'rgba(255,255,255,0.02)',
-                            borderRadius: '16px',
-                            border: '1px solid rgba(255,255,255,0.05)',
-                            color: 'var(--text-primary)',
-                          }}
-                          autoComplete="off"
-                          spellCheck={false}
-                        />
-                      )}
+                    <div
+                      className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider"
+                      style={{
+                        background: 'rgba(16, 185, 129, 0.1)',
+                        color: '#10b981',
+                        border: '1px solid rgba(16, 185, 129, 0.2)',
+                      }}
+                    >
+                      Secure
                     </div>
+                  </div>
 
-                    <div className="flex items-center justify-between mb-6">
-                      <span className="text-xs opacity-40" style={{ color: 'var(--text-muted)' }}>
-                        {key.length > 0 ? `${key.length}/32` : 'Alphanumeric'}
-                      </span>
-                      <div className="flex gap-1.5">
+                  <div className="relative mb-4">
+                    {(isVerifying || showSuccess || showError) && key.length > 0 ? (
+                      <div
+                        className="w-full px-5 py-4 rounded-2xl font-mono text-sm text-center tracking-[0.15em] flex justify-center items-center gap-0.5 flex-wrap min-h-[56px]"
+                        style={{
+                          background: 'var(--bg-tertiary)',
+                          border: '1px solid var(--border-default)',
+                        }}
+                      >
+                        {keyChars.map((char, index) => (
+                          <span
+                            key={index}
+                            className="inline-block transition-all"
+                            style={{
+                              color: showError ? 'var(--accent-primary)' : showSuccess ? '#10b981' : 'var(--text-primary)',
+                              ...getCharAnimation(index),
+                            }}
+                          >
+                            {char}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <input
+                        ref={inputRef}
+                        type="text"
+                        value={key}
+                        onChange={handleKeyChange}
+                        placeholder="ENTER ACCESS KEY"
+                        disabled={isVerifying || showSuccess}
+                        className={`
+                          w-full px-5 py-4 rounded-2xl font-mono text-sm text-center tracking-[0.15em]
+                          focus:outline-none transition-all duration-300
+                          ${showError ? 'error-glow' : ''}
+                          ${isVerifying ? 'opacity-50 cursor-wait' : ''}
+                        `}
+                        style={{
+                          background: 'var(--bg-tertiary)',
+                          border: '1px solid var(--border-default)',
+                          color: 'var(--text-primary)',
+                        }}
+                        autoComplete="off"
+                        spellCheck={false}
+                      />
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between mb-6">
+                    <span className="text-xs" style={{ color: 'var(--text-subtle)' }}>
+                      {key.length > 0 ? `${key.length}/32 characters` : 'Alphanumeric only'}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <div className="flex gap-1">
                         {[...Array(4)].map((_, i) => (
                           <div
                             key={i}
-                            className="w-8 h-1 transition-all duration-300"
+                            className="w-1.5 h-1.5 rounded-full transition-all duration-300"
                             style={{
                               background: key.length >= (i + 1) * 6
-                                ? showSuccess ? '#10b981' : 'var(--accent-primary)'
-                                : 'rgba(255,255,255,0.1)',
-                              borderRadius: '2px',
-                              boxShadow: key.length >= (i + 1) * 6 ? `0 0 10px ${showSuccess ? '#10b981' : 'var(--accent-primary)'}` : 'none',
+                                ? (showSuccess ? '#10b981' : 'var(--accent-primary)')
+                                : 'var(--bg-elevated)',
+                              boxShadow: key.length >= (i + 1) * 6
+                                ? `0 0 8px ${showSuccess ? '#10b981' : 'var(--accent-primary)'}`
+                                : 'none',
                             }}
                           />
                         ))}
                       </div>
                     </div>
+                  </div>
 
-                    {isVerifying && (
-                      <div className="mb-6 space-y-3">
+                  {isVerifying && (
+                    <div className="mb-6 p-4 rounded-2xl" style={{ background: 'var(--bg-tertiary)' }}>
+                      <div className="space-y-2.5">
                         {VERIFICATION_STEPS.map((step, index) => {
                           const Icon = step.icon;
                           const isActive = index === verificationStep;
@@ -492,160 +558,228 @@ export function AccessGate({ onVerify, isVerifying, error, onErrorClear }: Acces
                           return (
                             <div
                               key={index}
-                              className="flex items-center gap-3 transition-all duration-300"
-                              style={{ opacity: index <= verificationStep ? 1 : 0.3 }}
+                              className="flex items-center gap-3 fade-in-up"
+                              style={{
+                                opacity: index <= verificationStep ? 1 : 0.3,
+                                animationDelay: `${index * 0.1}s`,
+                              }}
                             >
                               <div
-                                className="w-7 h-7 flex items-center justify-center transition-all duration-300"
+                                className="w-6 h-6 rounded-lg flex items-center justify-center transition-all"
                                 style={{
-                                  background: isComplete ? 'rgba(16, 185, 129, 0.15)' : isActive ? 'rgba(255, 71, 87, 0.15)' : 'rgba(255,255,255,0.03)',
-                                  borderRadius: '8px',
+                                  background: isComplete
+                                    ? 'rgba(16, 185, 129, 0.2)'
+                                    : isActive
+                                    ? 'rgba(255, 71, 87, 0.2)'
+                                    : 'var(--bg-elevated)',
+                                  border: `1px solid ${
+                                    isComplete ? '#10b981' : isActive ? 'var(--accent-primary)' : 'var(--border-subtle)'
+                                  }`,
                                 }}
                               >
                                 {isComplete ? (
-                                  <CheckCircle className="w-3.5 h-3.5" style={{ color: '#10b981' }} />
+                                  <CheckCircle className="w-3 h-3" style={{ color: '#10b981' }} />
                                 ) : (
-                                  <Icon className="w-3.5 h-3.5" style={{ color: isActive ? 'var(--accent-primary)' : 'var(--text-subtle)' }} />
+                                  <Icon
+                                    className="w-3 h-3"
+                                    style={{
+                                      color: isActive ? 'var(--accent-primary)' : 'var(--text-subtle)',
+                                      animation: isActive ? 'pulse 0.5s infinite' : 'none',
+                                    }}
+                                  />
                                 )}
                               </div>
-                              <span className="font-mono text-xs" style={{ color: isComplete ? '#10b981' : isActive ? 'var(--text-primary)' : 'var(--text-subtle)' }}>
+                              <span
+                                className="font-mono text-xs"
+                                style={{
+                                  color: isComplete ? '#10b981' : isActive ? 'var(--text-primary)' : 'var(--text-subtle)',
+                                }}
+                              >
                                 {step.text}
                               </span>
                             </div>
                           );
                         })}
                       </div>
-                    )}
+                    </div>
+                  )}
 
-                    {showError && errorMessage && (
-                      <div
-                        className="mb-6 p-4 flex items-start gap-3"
-                        style={{
-                          background: 'rgba(255, 71, 87, 0.08)',
-                          borderRadius: '14px',
-                        }}
-                      >
-                        <AlertTriangle className="w-5 h-5 shrink-0" style={{ color: 'var(--accent-primary)' }} />
-                        <div>
-                          <p className="font-medium text-xs mb-0.5" style={{ color: 'var(--accent-primary)' }}>Access Denied</p>
-                          <p className="text-sm opacity-70" style={{ color: 'var(--text-muted)' }}>{errorMessage}</p>
-                        </div>
-                      </div>
-                    )}
-
-                    {showSuccess && (
-                      <div
-                        className="mb-6 p-4 flex items-start gap-3"
-                        style={{
-                          background: 'rgba(16, 185, 129, 0.08)',
-                          borderRadius: '14px',
-                        }}
-                      >
-                        <Sparkles className="w-5 h-5 shrink-0" style={{ color: '#10b981' }} />
-                        <div>
-                          <p className="font-medium text-xs mb-0.5" style={{ color: '#10b981' }}>Access Granted</p>
-                          <p className="text-sm opacity-70" style={{ color: 'var(--text-muted)' }}>Establishing secure session...</p>
-                        </div>
-                      </div>
-                    )}
-
-                    <button
-                      type="submit"
-                      disabled={isVerifying || key.length < 24}
-                      className="w-full py-4 font-mono text-sm tracking-[0.15em] uppercase font-medium transition-all duration-300 relative overflow-hidden group"
+                  {showError && errorMessage && (
+                    <div
+                      className="mb-6 p-4 rounded-2xl fade-in-up"
                       style={{
-                        background: key.length >= 24
-                          ? 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-blood) 100%)'
-                          : 'rgba(255,255,255,0.03)',
-                        color: key.length >= 24 ? '#fff' : 'var(--text-subtle)',
-                        borderRadius: '14px',
-                        opacity: isVerifying ? 0.6 : 1,
-                        cursor: key.length < 24 || isVerifying ? 'not-allowed' : 'pointer',
-                        boxShadow: key.length >= 24 ? '0 20px 40px -15px rgba(255, 71, 87, 0.4)' : 'none',
+                        background: 'rgba(255, 71, 87, 0.1)',
+                        border: '1px solid rgba(255, 71, 87, 0.3)',
                       }}
                     >
-                      <span className="relative flex items-center justify-center gap-2">
-                        {isVerifying ? (
-                          <>
-                            <div className="w-4 h-4 border-2 rounded-full animate-spin" style={{ borderColor: 'transparent', borderTopColor: 'white' }} />
-                            <span>Verifying...</span>
-                          </>
-                        ) : showSuccess ? (
-                          <>
-                            <CheckCircle className="w-4 h-4" />
-                            <span>Access Granted</span>
-                          </>
-                        ) : (
-                          <>
-                            <span>Request Access</span>
-                            <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-                          </>
-                        )}
-                      </span>
-                    </button>
-                  </div>
+                      <div className="flex items-start gap-3">
+                        <AlertTriangle className="w-5 h-5 shrink-0" style={{ color: 'var(--accent-primary)' }} />
+                        <div>
+                          <p className="font-medium text-xs mb-0.5" style={{ color: 'var(--accent-primary)' }}>
+                            Access Denied
+                          </p>
+                          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                            {errorMessage}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
-                  <div
-                    className="px-8 py-5 flex items-center justify-around"
+                  {showSuccess && (
+                    <div
+                      className="mb-6 p-4 rounded-2xl fade-in-up"
+                      style={{
+                        background: 'rgba(16, 185, 129, 0.1)',
+                        border: '1px solid rgba(16, 185, 129, 0.3)',
+                      }}
+                    >
+                      <div className="flex items-start gap-3">
+                        <CheckCircle className="w-5 h-5 shrink-0" style={{ color: '#10b981' }} />
+                        <div>
+                          <p className="font-medium text-xs mb-0.5" style={{ color: '#10b981' }}>
+                            Access Granted
+                          </p>
+                          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                            Key validated. Establishing secure session...
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={isVerifying || key.length < 24}
+                    className="w-full py-4 rounded-2xl font-mono text-sm tracking-[0.15em] uppercase font-medium transition-all duration-300 relative overflow-hidden group"
                     style={{
-                      background: 'rgba(0,0,0,0.3)',
-                      borderTop: '1px solid rgba(255,255,255,0.03)',
-                      borderRadius: '0 0 31px 31px',
+                      background: key.length >= 24
+                        ? 'linear-gradient(135deg, var(--accent-primary), var(--accent-blood))'
+                        : 'var(--bg-tertiary)',
+                      color: key.length >= 24 ? '#fff' : 'var(--text-subtle)',
+                      opacity: isVerifying ? 0.5 : 1,
+                      cursor: key.length < 24 || isVerifying ? 'not-allowed' : 'pointer',
+                      boxShadow: key.length >= 24
+                        ? '0 10px 40px -10px rgba(255, 71, 87, 0.5)'
+                        : 'none',
                     }}
                   >
-                    {[
-                      { icon: Lock, label: 'AES-256' },
-                      { icon: Eye, label: 'Zero-Trust' },
-                      { icon: Server, label: 'Isolated' },
-                    ].map((item, i) => (
-                      <div key={i} className="flex flex-col items-center gap-1.5">
-                        <item.icon className="w-4 h-4 opacity-40" style={{ color: 'var(--text-muted)' }} />
-                        <span className="text-[10px] opacity-40" style={{ color: 'var(--text-muted)' }}>{item.label}</span>
-                      </div>
-                    ))}
+                    {key.length >= 24 && !isVerifying && (
+                      <div
+                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        style={{
+                          background: 'linear-gradient(135deg, var(--accent-secondary), var(--accent-primary))',
+                        }}
+                      />
+                    )}
+                    <span className="relative flex items-center justify-center gap-2">
+                      {isVerifying ? (
+                        <>
+                          <div
+                            className="w-4 h-4 border-2 rounded-full animate-spin"
+                            style={{ borderColor: 'transparent', borderTopColor: 'white' }}
+                          />
+                          <span>Verifying...</span>
+                        </>
+                      ) : showSuccess ? (
+                        <>
+                          <CheckCircle className="w-4 h-4" />
+                          <span>Access Granted</span>
+                        </>
+                      ) : (
+                        'Request Access'
+                      )}
+                    </span>
+                  </button>
+                </div>
+
+                <div
+                  className="px-8 py-5 border-t"
+                  style={{
+                    borderColor: 'var(--border-subtle)',
+                    background: 'rgba(0, 0, 0, 0.2)',
+                  }}
+                >
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                      <Lock className="w-4 h-4 mx-auto mb-1.5" style={{ color: 'var(--text-subtle)' }} />
+                      <p className="text-[10px]" style={{ color: 'var(--text-subtle)' }}>AES-256</p>
+                    </div>
+                    <div>
+                      <Eye className="w-4 h-4 mx-auto mb-1.5" style={{ color: 'var(--text-subtle)' }} />
+                      <p className="text-[10px]" style={{ color: 'var(--text-subtle)' }}>Zero-Trust</p>
+                    </div>
+                    <div>
+                      <Server className="w-4 h-4 mx-auto mb-1.5" style={{ color: 'var(--text-subtle)' }} />
+                      <p className="text-[10px]" style={{ color: 'var(--text-subtle)' }}>Isolated</p>
+                    </div>
                   </div>
                 </div>
               </div>
             </form>
 
-            <div className="mt-8 text-center">
-              <p className="text-sm mb-3 opacity-60" style={{ color: 'var(--text-muted)' }}>Need an Access Key?</p>
+            <div
+              className="mt-6 p-5 rounded-2xl text-center"
+              style={{
+                background: 'linear-gradient(135deg, rgba(0, 212, 255, 0.08) 0%, rgba(255, 71, 87, 0.05) 100%)',
+                border: '1px solid rgba(0, 212, 255, 0.15)',
+              }}
+            >
+              <p className="text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
+                Need an Access Key?
+              </p>
+              <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
+                Contact our admin to get your exclusive membership
+              </p>
               <a
                 href="https://t.me/daemoncrow"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2.5 px-6 py-3 transition-all duration-300 hover:scale-105"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-300 hover:scale-105"
                 style={{
-                  background: 'linear-gradient(135deg, #0088cc 0%, #0077b5 100%)',
-                  borderRadius: '100px',
+                  background: 'linear-gradient(135deg, #0088cc, #0077b5)',
                   color: '#fff',
-                  boxShadow: '0 15px 35px -10px rgba(0, 136, 204, 0.4)',
+                  boxShadow: '0 8px 30px -10px rgba(0, 136, 204, 0.5)',
                 }}
               >
                 <Send className="w-4 h-4" />
-                <span className="font-medium">Contact @daemoncrow</span>
+                <span>@daemoncrow</span>
               </a>
+            </div>
+
+            <div className="mt-6 text-center">
+              <div className="inline-flex items-center gap-2">
+                <div className="pulse-dot" />
+                <span className="font-mono text-[10px] tracking-wider uppercase" style={{ color: 'var(--text-subtle)' }}>
+                  Gateway Active
+                </span>
+              </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="relative z-10 py-4 px-6">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="flex items-center gap-6">
-              {['Systems Online', 'DB Connected'].map((label, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" style={{ boxShadow: '0 0 8px #10b981' }} />
-                  <span className="text-[10px] font-mono opacity-40" style={{ color: 'var(--text-muted)' }}>{label}</span>
-                </div>
-              ))}
+      <div
+        className="relative z-10 border-t py-4 px-6"
+        style={{
+          borderColor: 'var(--border-subtle)',
+          background: 'rgba(0, 0, 0, 0.3)',
+        }}
+      >
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" style={{ boxShadow: '0 0 8px #10b981' }} />
+              <span className="text-[10px] font-mono" style={{ color: 'var(--text-subtle)' }}>Systems Online</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="pulse-dot" />
-              <span className="text-[10px] font-mono uppercase tracking-wider opacity-40" style={{ color: 'var(--text-muted)' }}>
-                Gateway Active
-              </span>
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" style={{ boxShadow: '0 0 8px #10b981' }} />
+              <span className="text-[10px] font-mono" style={{ color: 'var(--text-subtle)' }}>DB Connected</span>
             </div>
           </div>
+          <p className="text-[10px] font-mono tracking-wider" style={{ color: 'var(--text-subtle)', opacity: 0.5 }}>
+            Unauthorized access is prohibited
+          </p>
         </div>
       </div>
     </div>
