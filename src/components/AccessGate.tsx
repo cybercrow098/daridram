@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { DaemonLogo } from './DaemonLogo';
-import { Shield, Lock, Eye, Server, AlertTriangle, CheckCircle, Fingerprint, Wifi, Terminal, Cpu, Radio } from 'lucide-react';
+import { Shield, Lock, Eye, Server, AlertTriangle, CheckCircle, Fingerprint, Wifi, Terminal, Cpu, Radio, Sun, Moon, Send, Zap, Database, Code, Settings, Key, DollarSign, Users, HardDrive, Wrench } from 'lucide-react';
 
 interface AccessGateProps {
   onVerify: (key: string) => Promise<boolean>;
@@ -32,6 +32,20 @@ const VERIFICATION_STEPS = [
   { text: 'Establishing session', icon: Lock },
 ];
 
+const TOOLS = [
+  { icon: Code, label: 'Proprietary checkers & verification tools' },
+  { icon: Zap, label: 'In-house crypto utilities & libraries' },
+  { icon: Settings, label: 'Internal automation & analysis systems' },
+  { icon: Wrench, label: 'Private utilities under continuous development' },
+];
+
+const SECURITY_INDICATORS = [
+  { icon: Lock, label: 'Encrypted Sessions' },
+  { icon: Cpu, label: 'Isolated Execution' },
+  { icon: Shield, label: 'Zero-Trust Model' },
+  { icon: Key, label: 'Session Authorization' },
+];
+
 export function AccessGate({ onVerify, isVerifying, error, onErrorClear }: AccessGateProps) {
   const [key, setKey] = useState('');
   const [showError, setShowError] = useState(false);
@@ -40,7 +54,8 @@ export function AccessGate({ onVerify, isVerifying, error, onErrorClear }: Acces
   const [showSuccess, setShowSuccess] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [pageLoaded, setPageLoaded] = useState(false);
-  const [indicatorsVisible, setIndicatorsVisible] = useState([false, false, false, false]);
+  const [isDark, setIsDark] = useState(true);
+  const [sectionsVisible, setSectionsVisible] = useState<boolean[]>([false, false, false, false, false, false]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -50,14 +65,14 @@ export function AccessGate({ onVerify, isVerifying, error, onErrorClear }: Acces
 
   useEffect(() => {
     if (pageLoaded) {
-      indicatorsVisible.forEach((_, i) => {
+      sectionsVisible.forEach((_, i) => {
         setTimeout(() => {
-          setIndicatorsVisible(prev => {
+          setSectionsVisible(prev => {
             const next = [...prev];
             next[i] = true;
             return next;
           });
-        }, 800 + i * 150);
+        }, 400 + i * 200);
       });
     }
   }, [pageLoaded]);
@@ -124,117 +139,108 @@ export function AccessGate({ onVerify, isVerifying, error, onErrorClear }: Acces
   const canSubmit = isValidLength && !isVerifying;
 
   return (
-    <div className="gate-container">
-      <div className="gate-noise" />
-      <div className="gate-gradient" />
-      <div className="gate-gradient-secondary" />
-      <div className="gate-vignette" />
+    <div className={`gate-page ${isDark ? 'gate-dark' : 'gate-light'}`}>
+      <div className="gate-bg-noise" />
+      <div className="gate-bg-gradient-1" />
+      <div className="gate-bg-gradient-2" />
+      <div className="gate-bg-vignette" />
+      <div className="gate-bg-grid" />
+      <div className="gate-orb gate-orb-1" />
+      <div className="gate-orb gate-orb-2" />
+      <div className="gate-orb gate-orb-3" />
 
-      <div className="gate-grid" />
+      <button
+        onClick={() => setIsDark(!isDark)}
+        className="gate-theme-toggle"
+        aria-label="Toggle theme"
+      >
+        {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+      </button>
 
-      <div className="gate-ambient-orb gate-ambient-orb-1" />
-      <div className="gate-ambient-orb gate-ambient-orb-2" />
-      <div className="gate-ambient-orb gate-ambient-orb-3" />
-
-      <div className="gate-content">
-        <div className={`gate-logo-section ${pageLoaded ? 'gate-visible' : ''}`}>
+      <div className="gate-main">
+        <div className={`gate-hero ${pageLoaded ? 'gate-visible' : ''}`}>
           <div className="gate-logo-glow" />
-          <div className={`gate-logo-wrapper ${showSuccess ? 'gate-success-pulse' : ''}`}>
+          <div className={`gate-logo-wrap ${showSuccess ? 'gate-success-ring' : ''}`}>
             <DaemonLogo size="xl" showText={false} />
           </div>
 
-          <h1 className="gate-title">
-            Daemoncrow
-          </h1>
+          <h1 className="gate-brand">Daemoncrow</h1>
 
-          <div className="gate-subtitle-container">
-            <div className="gate-subtitle-line" />
-            <span className="gate-subtitle">Sealed Network</span>
-            <div className="gate-subtitle-line" />
+          <div className="gate-tagline">
+            <span className="gate-tagline-line" />
+            <span className="gate-tagline-text">Private Network Gateway</span>
+            <span className="gate-tagline-line" />
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className={`gate-form ${pageLoaded ? 'gate-visible' : ''}`}>
-          <div className="gate-input-section">
-            <div className="gate-input-label">
-              <span className="gate-label-text">Access Key</span>
-              <div className="gate-label-icon">
-                {showSuccess ? (
-                  <CheckCircle className="w-4 h-4 gate-icon-success" />
-                ) : (
-                  <Fingerprint className={`w-4 h-4 ${isVerifying ? 'gate-icon-verifying' : ''}`} />
-                )}
-              </div>
-            </div>
-
-            <div className={`gate-input-wrapper ${isFocused ? 'gate-input-focused' : ''} ${showError ? 'gate-input-error' : ''} ${showSuccess ? 'gate-input-success' : ''}`}>
-              {(isVerifying || showSuccess || showError) && key.length > 0 ? (
-                <div className={`gate-key-display ${showError ? 'gate-shake' : ''}`}>
-                  {key.split('').map((char, index) => (
-                    <span
-                      key={index}
-                      className={`gate-key-char ${showError ? 'gate-char-error' : ''} ${showSuccess ? 'gate-char-success' : ''} ${isVerifying ? 'gate-char-verifying' : ''}`}
-                      style={getCharAnimation(index)}
-                    >
-                      {char}
-                    </span>
-                  ))}
-                </div>
+        <form onSubmit={handleSubmit} className={`gate-access-form ${sectionsVisible[0] ? 'gate-visible' : ''}`}>
+          <div className="gate-form-header">
+            <span className="gate-form-label">Access Key</span>
+            <div className="gate-form-icon">
+              {showSuccess ? (
+                <CheckCircle className="w-4 h-4 gate-icon-success" />
               ) : (
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={key}
-                  onChange={handleKeyChange}
-                  onFocus={() => setIsFocused(true)}
-                  onBlur={() => setIsFocused(false)}
-                  placeholder="ENTER ACCESS KEY"
-                  disabled={isVerifying || showSuccess}
-                  className="gate-input"
-                  autoComplete="off"
-                  spellCheck={false}
-                />
+                <Fingerprint className={`w-4 h-4 ${isVerifying ? 'gate-icon-pulse' : ''}`} />
               )}
-              <div className="gate-input-underline">
-                <div className={`gate-input-underline-glow ${isFocused || isVerifying ? 'gate-underline-active' : ''}`} />
-                {isVerifying && <div className="gate-scan-line" />}
-              </div>
             </div>
+          </div>
 
-            <div className="gate-input-meta">
-              <span className="gate-meta-text">
-                {key.length > 0 ? `${key.length}/32` : 'Alphanumeric'}
-              </span>
-              <div className="gate-meta-status">
-                <div className={`gate-status-dot ${isValidLength ? 'gate-status-active' : ''}`} />
-                <span className={`gate-meta-text ${isValidLength ? 'gate-text-active' : ''}`}>
-                  {isValidLength ? 'Valid' : 'Min 24'}
-                </span>
+          <div className={`gate-input-container ${isFocused ? 'gate-focused' : ''} ${showError ? 'gate-error' : ''} ${showSuccess ? 'gate-success' : ''}`}>
+            {(isVerifying || showSuccess || showError) && key.length > 0 ? (
+              <div className={`gate-key-chars ${showError ? 'gate-shake' : ''}`}>
+                {key.split('').map((char, index) => (
+                  <span
+                    key={index}
+                    className={`gate-char ${showError ? 'gate-char-err' : ''} ${showSuccess ? 'gate-char-ok' : ''} ${isVerifying ? 'gate-char-wave' : ''}`}
+                    style={getCharAnimation(index)}
+                  >
+                    {char}
+                  </span>
+                ))}
               </div>
+            ) : (
+              <input
+                ref={inputRef}
+                type="text"
+                value={key}
+                onChange={handleKeyChange}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                placeholder="ENTER ACCESS KEY"
+                disabled={isVerifying || showSuccess}
+                className="gate-text-input"
+                autoComplete="off"
+                spellCheck={false}
+              />
+            )}
+            <div className="gate-underline">
+              <div className={`gate-underline-glow ${isFocused || isVerifying ? 'active' : ''}`} />
+              {isVerifying && <div className="gate-scanner" />}
+            </div>
+          </div>
+
+          <div className="gate-input-info">
+            <span className="gate-info-text">{key.length > 0 ? `${key.length}/32` : 'Alphanumeric'}</span>
+            <div className="gate-info-status">
+              <div className={`gate-dot ${isValidLength ? 'active' : ''}`} />
+              <span className={`gate-info-text ${isValidLength ? 'active' : ''}`}>
+                {isValidLength ? 'Valid' : 'Min 24'}
+              </span>
             </div>
           </div>
 
           {isVerifying && (
-            <div className="gate-verification">
+            <div className="gate-verify-steps">
               {VERIFICATION_STEPS.map((step, index) => {
                 const Icon = step.icon;
                 const isActive = index === verificationStep;
                 const isComplete = index < verificationStep;
                 return (
-                  <div
-                    key={index}
-                    className={`gate-verification-step ${index <= verificationStep ? 'gate-step-visible' : ''}`}
-                  >
-                    <div className={`gate-step-icon ${isComplete ? 'gate-step-complete' : ''} ${isActive ? 'gate-step-active' : ''}`}>
-                      {isComplete ? (
-                        <CheckCircle className="w-3 h-3" />
-                      ) : (
-                        <Icon className={`w-3 h-3 ${isActive ? 'gate-icon-pulse' : ''}`} />
-                      )}
+                  <div key={index} className={`gate-step ${index <= verificationStep ? 'visible' : ''}`}>
+                    <div className={`gate-step-icon ${isComplete ? 'complete' : ''} ${isActive ? 'active' : ''}`}>
+                      {isComplete ? <CheckCircle className="w-3 h-3" /> : <Icon className={`w-3 h-3 ${isActive ? 'pulse' : ''}`} />}
                     </div>
-                    <span className={`gate-step-text ${isComplete ? 'gate-text-complete' : ''} ${isActive ? 'gate-text-active' : ''}`}>
-                      {step.text}
-                    </span>
+                    <span className={`gate-step-label ${isComplete ? 'complete' : ''} ${isActive ? 'active' : ''}`}>{step.text}</span>
                   </div>
                 );
               })}
@@ -242,68 +248,133 @@ export function AccessGate({ onVerify, isVerifying, error, onErrorClear }: Acces
           )}
 
           {showError && errorMessage && (
-            <div className="gate-error-message">
+            <div className="gate-msg gate-msg-error">
               <AlertTriangle className="w-4 h-4" />
-              <div className="gate-error-content">
-                <span className="gate-error-title">Access Denied</span>
-                <span className="gate-error-text">{errorMessage}</span>
+              <div className="gate-msg-content">
+                <span className="gate-msg-title">Access Denied</span>
+                <span className="gate-msg-text">{errorMessage}</span>
               </div>
             </div>
           )}
 
           {showSuccess && (
-            <div className="gate-success-message">
+            <div className="gate-msg gate-msg-success">
               <CheckCircle className="w-4 h-4" />
-              <div className="gate-success-content">
-                <span className="gate-success-title">Access Granted</span>
-                <span className="gate-success-text">Establishing secure session...</span>
+              <div className="gate-msg-content">
+                <span className="gate-msg-title">Access Granted</span>
+                <span className="gate-msg-text">Establishing secure session...</span>
               </div>
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={!canSubmit}
-            className={`gate-cta ${canSubmit ? 'gate-cta-active' : ''} ${isVerifying ? 'gate-cta-verifying' : ''}`}
-          >
-            <span className="gate-cta-text">
+          <button type="submit" disabled={!canSubmit} className={`gate-submit ${canSubmit ? 'enabled' : ''} ${isVerifying ? 'verifying' : ''}`}>
+            <span className="gate-submit-text">
               {isVerifying ? 'Verifying' : showSuccess ? 'Access Granted' : 'Request Access'}
             </span>
-            {isVerifying && <div className="gate-cta-spinner" />}
-            <div className="gate-cta-sweep" />
+            {isVerifying && <div className="gate-spinner" />}
+            <div className="gate-sweep" />
           </button>
         </form>
 
-        <div className={`gate-indicators ${pageLoaded ? 'gate-visible' : ''}`}>
-          <div className={`gate-indicator ${indicatorsVisible[0] ? 'gate-indicator-visible' : ''}`}>
-            <Lock className="w-3 h-3" />
-            <span>256-bit</span>
+        <div className={`gate-section ${sectionsVisible[1] ? 'gate-visible' : ''}`}>
+          <div className="gate-section-header">
+            <Send className="w-4 h-4" />
+            <span>How to Get Access</span>
           </div>
-          <div className={`gate-indicator ${indicatorsVisible[1] ? 'gate-indicator-visible' : ''}`}>
-            <Eye className="w-3 h-3" />
-            <span>Zero-knowledge</span>
-          </div>
-          <div className={`gate-indicator ${indicatorsVisible[2] ? 'gate-indicator-visible' : ''}`}>
-            <Cpu className="w-3 h-3" />
-            <span>Isolated</span>
-          </div>
-          <div className={`gate-indicator ${indicatorsVisible[3] ? 'gate-indicator-visible' : ''}`}>
-            <Radio className="w-3 h-3" />
-            <span>Encrypted</span>
+          <div className="gate-protocol">
+            <p className="gate-protocol-line">Access keys are issued manually.</p>
+            <p className="gate-protocol-line">To request access, contact admin via Telegram:</p>
+            <a href="https://t.me/daemoncrow" target="_blank" rel="noopener noreferrer" className="gate-contact">
+              @daemoncrow
+            </a>
           </div>
         </div>
 
-        <div className={`gate-status-bar ${pageLoaded ? 'gate-visible' : ''}`}>
-          <div className="gate-status-item">
-            <div className="gate-status-light gate-status-online" />
+        <div className={`gate-section ${sectionsVisible[2] ? 'gate-visible' : ''}`}>
+          <div className="gate-section-header">
+            <Database className="w-4 h-4" />
+            <span>Platform Overview</span>
+          </div>
+          <div className="gate-briefing">
+            <p className="gate-brief-line highlight">DAEMONCROW is a private, all-in-one platform for advanced tools, research, and utilities.</p>
+            <p className="gate-brief-line">Centralized access to everything required - no scattered services.</p>
+            <p className="gate-brief-line">Built for serious users, not the public.</p>
+          </div>
+        </div>
+
+        <div className={`gate-section ${sectionsVisible[3] ? 'gate-visible' : ''}`}>
+          <div className="gate-section-header">
+            <Wrench className="w-4 h-4" />
+            <span>In-House Tools</span>
+          </div>
+          <div className="gate-tools">
+            {TOOLS.map((tool, i) => (
+              <div key={i} className="gate-tool">
+                <tool.icon className="w-4 h-4" />
+                <span>{tool.label}</span>
+              </div>
+            ))}
+          </div>
+          <div className="gate-tools-note">
+            <span>All tools are built in-house, maintained privately, and not available elsewhere.</span>
+          </div>
+        </div>
+
+        <div className={`gate-section ${sectionsVisible[4] ? 'gate-visible' : ''}`}>
+          <div className="gate-section-header">
+            <DollarSign className="w-4 h-4" />
+            <span>Subscription Model</span>
+          </div>
+          <div className="gate-pricing">
+            <div className="gate-price">
+              <span className="gate-price-amount">$45</span>
+              <span className="gate-price-period">/ month</span>
+            </div>
+            <div className="gate-price-reasons">
+              <div className="gate-reason">
+                <HardDrive className="w-3 h-3" />
+                <span>Maintain and scale private infrastructure</span>
+              </div>
+              <div className="gate-reason">
+                <Server className="w-3 h-3" />
+                <span>Operate and secure dedicated servers</span>
+              </div>
+              <div className="gate-reason">
+                <Code className="w-3 h-3" />
+                <span>Continuously develop exclusive in-house tools</span>
+              </div>
+              <div className="gate-reason">
+                <Shield className="w-3 h-3" />
+                <span>Protect private knowledge, data, and resources</span>
+              </div>
+              <div className="gate-reason">
+                <Users className="w-3 h-3" />
+                <span>Keep access limited and high-signal</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className={`gate-security ${sectionsVisible[5] ? 'gate-visible' : ''}`}>
+          {SECURITY_INDICATORS.map((item, i) => (
+            <div key={i} className="gate-sec-item">
+              <item.icon className="w-3 h-3" />
+              <span>{item.label}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className={`gate-status-row ${pageLoaded ? 'gate-visible' : ''}`}>
+          <div className="gate-status">
+            <div className="gate-status-dot online" />
             <span>Systems Online</span>
           </div>
-          <div className="gate-status-item">
-            <div className="gate-status-light gate-status-online" />
+          <div className="gate-status">
+            <div className="gate-status-dot online" />
             <span>DB Connected</span>
           </div>
-          <div className="gate-status-item">
-            <div className="gate-status-light gate-status-online" />
+          <div className="gate-status">
+            <div className="gate-status-dot online" />
             <span>Gateway Secure</span>
           </div>
         </div>
