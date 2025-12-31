@@ -250,15 +250,16 @@ export function AccessGate({ onVerify, isVerifying, error, onErrorClear }: Acces
         <div className="flex-1 flex flex-col lg:flex-row items-center justify-center px-6 py-16 gap-16 lg:gap-24">
 
           <div className="w-full max-w-xl lg:max-w-lg fade-up" style={{ animationDelay: '0.1s' }}>
-            <div className="flex items-center gap-5 mb-10">
-              <div className="relative glow-pulse">
-                <DaemonLogo size="xl" showText={false} />
+            <div className="flex items-center gap-4 lg:gap-5 mb-10">
+              <div className="relative shrink-0 glow-pulse">
+                <DaemonLogo size="lg" showText={false} className="lg:hidden" />
+                <DaemonLogo size="xl" showText={false} className="hidden lg:block" />
               </div>
-              <div>
-                <h1 className="logo-text text-3xl lg:text-4xl tracking-[0.25em] shimmer-text">
+              <div className="min-w-0">
+                <h1 className="logo-text text-2xl sm:text-3xl lg:text-4xl tracking-[0.2em] lg:tracking-[0.25em] shimmer-text">
                   Daemoncrow
                 </h1>
-                <p className="font-mono text-xs tracking-[0.3em] uppercase mt-2 opacity-50" style={{ color: 'var(--text-muted)' }}>
+                <p className="font-mono text-[10px] sm:text-xs tracking-[0.2em] sm:tracking-[0.3em] uppercase mt-1.5 lg:mt-2 opacity-50" style={{ color: 'var(--text-muted)' }}>
                   Exclusive Network
                 </p>
               </div>
