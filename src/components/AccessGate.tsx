@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { DaemonLogo } from './DaemonLogo';
-import { Shield, Lock, Eye, Server, AlertTriangle, CheckCircle, XCircle, Fingerprint, Wifi, Clock, Terminal } from 'lucide-react';
+import { Shield, Lock, Eye, Server, AlertTriangle, CheckCircle, Fingerprint, Wifi, Terminal, Cpu, Radio } from 'lucide-react';
 
 interface AccessGateProps {
   onVerify: (key: string) => Promise<boolean>;
@@ -25,11 +25,11 @@ const SARCASTIC_FAILURES = [
 ];
 
 const VERIFICATION_STEPS = [
-  { text: 'Initializing secure handshake...', icon: Wifi },
-  { text: 'Validating key format...', icon: Terminal },
-  { text: 'Checking against database...', icon: Server },
-  { text: 'Verifying permissions...', icon: Shield },
-  { text: 'Establishing session...', icon: Lock },
+  { text: 'Initializing secure handshake', icon: Wifi },
+  { text: 'Validating key format', icon: Terminal },
+  { text: 'Checking against database', icon: Server },
+  { text: 'Verifying permissions', icon: Shield },
+  { text: 'Establishing session', icon: Lock },
 ];
 
 export function AccessGate({ onVerify, isVerifying, error, onErrorClear }: AccessGateProps) {
@@ -38,11 +38,33 @@ export function AccessGate({ onVerify, isVerifying, error, onErrorClear }: Acces
   const [errorMessage, setErrorMessage] = useState('');
   const [verificationStep, setVerificationStep] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [keyChars, setKeyChars] = useState<string[]>([]);
+  const [isFocused, setIsFocused] = useState(false);
+  const [pageLoaded, setPageLoaded] = useState(false);
+  const [indicatorsVisible, setIndicatorsVisible] = useState([false, false, false, false]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    inputRef.current?.focus();
+    const timer = setTimeout(() => setPageLoaded(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (pageLoaded) {
+      indicatorsVisible.forEach((_, i) => {
+        setTimeout(() => {
+          setIndicatorsVisible(prev => {
+            const next = [...prev];
+            next[i] = true;
+            return next;
+          });
+        }, 800 + i * 150);
+      });
+    }
+  }, [pageLoaded]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => inputRef.current?.focus(), 600);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -88,214 +110,71 @@ export function AccessGate({ onVerify, isVerifying, error, onErrorClear }: Acces
     const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
     if (value.length <= 32) {
       setKey(value);
-      setKeyChars(value.split(''));
     }
   };
 
   const getCharAnimation = useCallback((index: number) => {
-    if (isVerifying) {
-      const delay = index * 0.03;
-      return {
-        animation: `pulse 0.5s ease-in-out infinite`,
-        animationDelay: `${delay}s`,
-      };
-    }
-    if (showSuccess) {
-      const delay = index * 0.02;
-      return {
-        animation: `successPop 0.3s ease-out forwards`,
-        animationDelay: `${delay}s`,
-        color: 'var(--accent-primary)',
-      };
-    }
     if (showError) {
-      return {
-        animation: `shake 0.1s ease-in-out`,
-        animationDelay: `${index * 0.01}s`,
-        color: 'var(--accent-primary)',
-      };
+      return { animationDelay: `${index * 0.01}s` };
     }
     return {};
-  }, [isVerifying, showSuccess, showError]);
+  }, [showError]);
+
+  const isValidLength = key.length >= 24;
+  const canSubmit = isValidLength && !isVerifying;
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center px-4 relative overflow-hidden py-12"
-      style={{ background: 'var(--bg-base)' }}
-    >
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.5; transform: scale(0.95); }
-        }
-        @keyframes successPop {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.3); color: #10b981; }
-          100% { transform: scale(1); color: #10b981; }
-        }
-        @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          25% { transform: translateX(-4px); }
-          75% { transform: translateX(4px); }
-        }
-        @keyframes scanLine {
-          0% { transform: translateY(-100%); opacity: 0; }
-          50% { opacity: 1; }
-          100% { transform: translateY(100%); opacity: 0; }
-        }
-        @keyframes glow {
-          0%, 100% { box-shadow: 0 0 20px rgba(220, 38, 38, 0.3); }
-          50% { box-shadow: 0 0 40px rgba(220, 38, 38, 0.6); }
-        }
-        @keyframes successGlow {
-          0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
-          70% { box-shadow: 0 0 0 20px rgba(16, 185, 129, 0); }
-          100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-        }
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes typing {
-          from { width: 0; }
-          to { width: 100%; }
-        }
-        .scan-line {
-          animation: scanLine 2s ease-in-out infinite;
-        }
-        .glow-animation {
-          animation: glow 1.5s ease-in-out infinite;
-        }
-        .success-glow {
-          animation: successGlow 1s ease-out;
-        }
-        .fade-in-up {
-          animation: fadeInUp 0.3s ease-out forwards;
-        }
-      `}</style>
+    <div className="gate-container">
+      <div className="gate-noise" />
+      <div className="gate-gradient" />
+      <div className="gate-gradient-secondary" />
+      <div className="gate-vignette" />
 
-      <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1000px] h-[700px] pointer-events-none"
-        style={{
-          background: showSuccess
-            ? 'radial-gradient(ellipse 50% 35% at 50% 0%, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05) 50%, transparent 80%)'
-            : showError
-            ? 'radial-gradient(ellipse 50% 35% at 50% 0%, rgba(220, 38, 38, 0.2), rgba(185, 28, 28, 0.08) 50%, transparent 80%)'
-            : 'radial-gradient(ellipse 50% 35% at 50% 0%, rgba(220, 38, 38, 0.12), rgba(185, 28, 28, 0.05) 50%, transparent 80%)',
-          transition: 'background 0.5s ease',
-        }}
-      />
+      <div className="gate-grid" />
 
-      <div
-        className="absolute inset-0 pointer-events-none opacity-30"
-        style={{
-          backgroundImage: `radial-gradient(rgba(220, 38, 38, 0.03) 1px, transparent 1px)`,
-          backgroundSize: '40px 40px',
-        }}
-      />
+      <div className="gate-ambient-orb gate-ambient-orb-1" />
+      <div className="gate-ambient-orb gate-ambient-orb-2" />
+      <div className="gate-ambient-orb gate-ambient-orb-3" />
 
-      <div className="w-full max-w-md relative z-10 flex-1 flex flex-col justify-center">
-        <div className="flex flex-col items-center mb-12 animate-fade-in">
-          <div className="relative mb-6">
-            <div
-              className="absolute inset-0 blur-3xl -z-10 scale-[2] transition-all duration-500"
-              style={{
-                background: showSuccess
-                  ? 'rgba(16, 185, 129, 0.3)'
-                  : showError
-                  ? 'rgba(220, 38, 38, 0.4)'
-                  : 'var(--glow-primary)',
-              }}
-            />
-            <div className={showSuccess ? 'success-glow rounded-full' : ''}>
-              <DaemonLogo size="xl" showText={false} />
-            </div>
+      <div className="gate-content">
+        <div className={`gate-logo-section ${pageLoaded ? 'gate-visible' : ''}`}>
+          <div className="gate-logo-glow" />
+          <div className={`gate-logo-wrapper ${showSuccess ? 'gate-success-pulse' : ''}`}>
+            <DaemonLogo size="xl" showText={false} />
           </div>
 
-          <h1 className="logo-text text-2xl tracking-[0.35em] text-gradient mb-2">
+          <h1 className="gate-title">
             Daemoncrow
           </h1>
-          <div className="flex items-center gap-3 mt-4">
-            <div className="h-px w-8" style={{ background: 'var(--border-accent)' }} />
-            <p
-              className="font-mono text-[10px] tracking-[0.3em] uppercase"
-              style={{ color: 'var(--text-subtle)' }}
-            >
-              Sealed Network
-            </p>
-            <div className="h-px w-8" style={{ background: 'var(--border-accent)' }} />
+
+          <div className="gate-subtitle-container">
+            <div className="gate-subtitle-line" />
+            <span className="gate-subtitle">Sealed Network</span>
+            <div className="gate-subtitle-line" />
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="animate-slide-up" style={{ animationDelay: '0.15s' }}>
-          <div
-            className={`p-6 rounded-xl border relative overflow-hidden transition-all duration-300 ${
-              isVerifying ? 'glow-animation' : ''
-            } ${showSuccess ? 'success-glow' : ''}`}
-            style={{
-              background: 'var(--bg-secondary)',
-              borderColor: showError
-                ? 'var(--accent-primary)'
-                : showSuccess
-                ? '#10b981'
-                : isVerifying
-                ? 'var(--accent-primary)'
-                : 'var(--border-subtle)',
-              boxShadow: showError
-                ? '0 0 40px var(--glow-primary), inset 0 0 20px rgba(220, 38, 38, 0.05)'
-                : showSuccess
-                ? '0 0 40px rgba(16, 185, 129, 0.3), inset 0 0 20px rgba(16, 185, 129, 0.05)'
-                : '0 8px 32px rgba(0, 0, 0, 0.4)',
-            }}
-          >
-            {isVerifying && (
-              <div
-                className="absolute left-0 right-0 h-0.5 scan-line"
-                style={{ background: 'linear-gradient(90deg, transparent, var(--accent-primary), transparent)' }}
-              />
-            )}
-
-            <div className="flex items-center justify-between mb-4">
-              <label
-                className="font-mono text-[10px] tracking-[0.2em] uppercase"
-                style={{ color: 'var(--text-subtle)' }}
-              >
-                Access Key
-              </label>
-              <div className="flex items-center gap-2">
+        <form onSubmit={handleSubmit} className={`gate-form ${pageLoaded ? 'gate-visible' : ''}`}>
+          <div className="gate-input-section">
+            <div className="gate-input-label">
+              <span className="gate-label-text">Access Key</span>
+              <div className="gate-label-icon">
                 {showSuccess ? (
-                  <CheckCircle className="w-4 h-4" style={{ color: '#10b981' }} />
-                ) : showError ? (
-                  <XCircle className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />
+                  <CheckCircle className="w-4 h-4 gate-icon-success" />
                 ) : (
-                  <Fingerprint
-                    className="w-4 h-4 transition-all"
-                    style={{
-                      color: isVerifying ? 'var(--accent-primary)' : 'var(--text-subtle)',
-                      animation: isVerifying ? 'pulse 1s infinite' : 'none',
-                    }}
-                  />
+                  <Fingerprint className={`w-4 h-4 ${isVerifying ? 'gate-icon-verifying' : ''}`} />
                 )}
               </div>
             </div>
 
-            <div className="relative">
+            <div className={`gate-input-wrapper ${isFocused ? 'gate-input-focused' : ''} ${showError ? 'gate-input-error' : ''} ${showSuccess ? 'gate-input-success' : ''}`}>
               {(isVerifying || showSuccess || showError) && key.length > 0 ? (
-                <div
-                  className="w-full px-4 py-3.5 rounded-lg font-mono text-base text-center tracking-[0.15em] flex justify-center items-center gap-0.5 flex-wrap min-h-[52px]"
-                  style={{
-                    background: 'var(--bg-tertiary)',
-                    border: '1px solid var(--border-subtle)',
-                  }}
-                >
-                  {keyChars.map((char, index) => (
+                <div className={`gate-key-display ${showError ? 'gate-shake' : ''}`}>
+                  {key.split('').map((char, index) => (
                     <span
                       key={index}
-                      className="inline-block transition-all"
-                      style={{
-                        color: showError ? 'var(--accent-primary)' : showSuccess ? '#10b981' : 'var(--text-primary)',
-                        ...getCharAnimation(index),
-                      }}
+                      className={`gate-key-char ${showError ? 'gate-char-error' : ''} ${showSuccess ? 'gate-char-success' : ''} ${isVerifying ? 'gate-char-verifying' : ''}`}
+                      style={getCharAnimation(index)}
                     >
                       {char}
                     </span>
@@ -307,250 +186,131 @@ export function AccessGate({ onVerify, isVerifying, error, onErrorClear }: Acces
                   type="text"
                   value={key}
                   onChange={handleKeyChange}
+                  onFocus={() => setIsFocused(true)}
+                  onBlur={() => setIsFocused(false)}
                   placeholder="ENTER ACCESS KEY"
                   disabled={isVerifying || showSuccess}
-                  className={`
-                    w-full input-field text-center tracking-[0.15em] text-base
-                    ${showError ? 'error-glow' : ''}
-                    ${isVerifying ? 'opacity-50 cursor-wait' : ''}
-                  `}
+                  className="gate-input"
                   autoComplete="off"
                   spellCheck={false}
                 />
               )}
+              <div className="gate-input-underline">
+                <div className={`gate-input-underline-glow ${isFocused || isVerifying ? 'gate-underline-active' : ''}`} />
+                {isVerifying && <div className="gate-scan-line" />}
+              </div>
             </div>
 
-            <div className="flex items-center justify-between mt-4">
-              <span
-                className="font-mono text-[10px] tracking-wider"
-                style={{ color: 'var(--text-subtle)' }}
-              >
-                {key.length > 0 ? `${key.length}/32 characters` : 'Alphanumeric only'}
+            <div className="gate-input-meta">
+              <span className="gate-meta-text">
+                {key.length > 0 ? `${key.length}/32` : 'Alphanumeric'}
               </span>
-              <div className="flex items-center gap-2">
-                <div
-                  className="w-1.5 h-1.5 rounded-full transition-all"
-                  style={{
-                    background: key.length >= 24 ? (showSuccess ? '#10b981' : 'var(--accent-primary)') : 'var(--text-subtle)',
-                    boxShadow: key.length >= 24 ? `0 0 8px ${showSuccess ? '#10b981' : 'var(--accent-primary)'}` : 'none',
-                  }}
-                />
-                <span
-                  className="font-mono text-[10px]"
-                  style={{ color: key.length >= 24 ? (showSuccess ? '#10b981' : 'var(--accent-tertiary)') : 'var(--text-subtle)' }}
-                >
-                  {key.length >= 24 ? 'Valid length' : 'Min 24 chars'}
+              <div className="gate-meta-status">
+                <div className={`gate-status-dot ${isValidLength ? 'gate-status-active' : ''}`} />
+                <span className={`gate-meta-text ${isValidLength ? 'gate-text-active' : ''}`}>
+                  {isValidLength ? 'Valid' : 'Min 24'}
                 </span>
               </div>
             </div>
-
-            {isVerifying && (
-              <div className="mt-4 pt-4 border-t" style={{ borderColor: 'var(--border-subtle)' }}>
-                <div className="space-y-2">
-                  {VERIFICATION_STEPS.map((step, index) => {
-                    const Icon = step.icon;
-                    const isActive = index === verificationStep;
-                    const isComplete = index < verificationStep;
-                    return (
-                      <div
-                        key={index}
-                        className="flex items-center gap-3 fade-in-up"
-                        style={{
-                          opacity: index <= verificationStep ? 1 : 0.3,
-                          animationDelay: `${index * 0.1}s`,
-                        }}
-                      >
-                        <div
-                          className="w-5 h-5 rounded flex items-center justify-center transition-all"
-                          style={{
-                            background: isComplete ? 'rgba(16, 185, 129, 0.2)' : isActive ? 'rgba(220, 38, 38, 0.2)' : 'var(--bg-tertiary)',
-                            border: `1px solid ${isComplete ? '#10b981' : isActive ? 'var(--accent-primary)' : 'var(--border-subtle)'}`,
-                          }}
-                        >
-                          {isComplete ? (
-                            <CheckCircle className="w-3 h-3" style={{ color: '#10b981' }} />
-                          ) : (
-                            <Icon
-                              className="w-3 h-3"
-                              style={{
-                                color: isActive ? 'var(--accent-primary)' : 'var(--text-subtle)',
-                                animation: isActive ? 'pulse 0.5s infinite' : 'none',
-                              }}
-                            />
-                          )}
-                        </div>
-                        <span
-                          className="font-mono text-[10px] tracking-wider"
-                          style={{
-                            color: isComplete ? '#10b981' : isActive ? 'var(--text-primary)' : 'var(--text-subtle)',
-                          }}
-                        >
-                          {step.text}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
           </div>
 
+          {isVerifying && (
+            <div className="gate-verification">
+              {VERIFICATION_STEPS.map((step, index) => {
+                const Icon = step.icon;
+                const isActive = index === verificationStep;
+                const isComplete = index < verificationStep;
+                return (
+                  <div
+                    key={index}
+                    className={`gate-verification-step ${index <= verificationStep ? 'gate-step-visible' : ''}`}
+                  >
+                    <div className={`gate-step-icon ${isComplete ? 'gate-step-complete' : ''} ${isActive ? 'gate-step-active' : ''}`}>
+                      {isComplete ? (
+                        <CheckCircle className="w-3 h-3" />
+                      ) : (
+                        <Icon className={`w-3 h-3 ${isActive ? 'gate-icon-pulse' : ''}`} />
+                      )}
+                    </div>
+                    <span className={`gate-step-text ${isComplete ? 'gate-text-complete' : ''} ${isActive ? 'gate-text-active' : ''}`}>
+                      {step.text}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
           {showError && errorMessage && (
-            <div
-              className="mt-4 p-4 rounded-xl fade-in-up"
-              style={{
-                background: 'rgba(220, 38, 38, 0.1)',
-                border: '1px solid var(--accent-primary)',
-              }}
-            >
-              <div className="flex items-start gap-3">
-                <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: 'var(--accent-primary)' }} />
-                <div>
-                  <p className="font-mono text-xs font-medium mb-1" style={{ color: 'var(--accent-primary)' }}>
-                    Access Denied
-                  </p>
-                  <p className="font-sans text-sm" style={{ color: 'var(--text-muted)' }}>
-                    {errorMessage}
-                  </p>
-                </div>
+            <div className="gate-error-message">
+              <AlertTriangle className="w-4 h-4" />
+              <div className="gate-error-content">
+                <span className="gate-error-title">Access Denied</span>
+                <span className="gate-error-text">{errorMessage}</span>
               </div>
             </div>
           )}
 
           {showSuccess && (
-            <div
-              className="mt-4 p-4 rounded-xl fade-in-up"
-              style={{
-                background: 'rgba(16, 185, 129, 0.1)',
-                border: '1px solid #10b981',
-              }}
-            >
-              <div className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 shrink-0 mt-0.5" style={{ color: '#10b981' }} />
-                <div>
-                  <p className="font-mono text-xs font-medium mb-1" style={{ color: '#10b981' }}>
-                    Access Granted
-                  </p>
-                  <p className="font-sans text-sm" style={{ color: 'var(--text-muted)' }}>
-                    Key validated successfully. Establishing secure session...
-                  </p>
-                </div>
+            <div className="gate-success-message">
+              <CheckCircle className="w-4 h-4" />
+              <div className="gate-success-content">
+                <span className="gate-success-title">Access Granted</span>
+                <span className="gate-success-text">Establishing secure session...</span>
               </div>
             </div>
           )}
 
           <button
             type="submit"
-            disabled={isVerifying || key.length < 24}
-            className={`
-              w-full mt-5 btn-primary py-4 relative overflow-hidden
-              ${key.length < 24 ? 'opacity-30 cursor-not-allowed' : ''}
-              ${isVerifying ? 'opacity-50 cursor-wait' : ''}
-            `}
+            disabled={!canSubmit}
+            className={`gate-cta ${canSubmit ? 'gate-cta-active' : ''} ${isVerifying ? 'gate-cta-verifying' : ''}`}
           >
-            <span className="relative z-10 flex items-center justify-center gap-2">
-              {isVerifying ? (
-                <>
-                  <div
-                    className="w-4 h-4 border-2 rounded-full animate-spin"
-                    style={{ borderColor: 'transparent', borderTopColor: 'white' }}
-                  />
-                  <span>Verifying...</span>
-                </>
-              ) : showSuccess ? (
-                <>
-                  <CheckCircle className="w-4 h-4" />
-                  <span>Access Granted</span>
-                </>
-              ) : (
-                'Request Access'
-              )}
+            <span className="gate-cta-text">
+              {isVerifying ? 'Verifying' : showSuccess ? 'Access Granted' : 'Request Access'}
             </span>
+            {isVerifying && <div className="gate-cta-spinner" />}
+            <div className="gate-cta-sweep" />
           </button>
         </form>
 
-        <div
-          className="mt-10 p-4 rounded-xl animate-slide-up"
-          style={{
-            animationDelay: '0.25s',
-            background: 'var(--bg-secondary)',
-            border: '1px solid var(--border-subtle)',
-          }}
-        >
-          <div className="flex items-center gap-2 mb-4">
-            <Shield className="w-4 h-4" style={{ color: 'var(--accent-primary)' }} />
-            <span
-              className="font-mono text-[10px] tracking-[0.2em] uppercase"
-              style={{ color: 'var(--text-subtle)' }}
-            >
-              Security Information
-            </span>
+        <div className={`gate-indicators ${pageLoaded ? 'gate-visible' : ''}`}>
+          <div className={`gate-indicator ${indicatorsVisible[0] ? 'gate-indicator-visible' : ''}`}>
+            <Lock className="w-3 h-3" />
+            <span>256-bit</span>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex items-center gap-2">
-              <Lock className="w-3 h-3" style={{ color: 'var(--text-subtle)' }} />
-              <span className="font-mono text-[9px]" style={{ color: 'var(--text-muted)' }}>
-                256-bit encryption
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Eye className="w-3 h-3" style={{ color: 'var(--text-subtle)' }} />
-              <span className="font-mono text-[9px]" style={{ color: 'var(--text-muted)' }}>
-                Zero-knowledge proof
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Server className="w-3 h-3" style={{ color: 'var(--text-subtle)' }} />
-              <span className="font-mono text-[9px]" style={{ color: 'var(--text-muted)' }}>
-                Isolated instances
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="w-3 h-3" style={{ color: 'var(--text-subtle)' }} />
-              <span className="font-mono text-[9px]" style={{ color: 'var(--text-muted)' }}>
-                Session timeout
-              </span>
-            </div>
+          <div className={`gate-indicator ${indicatorsVisible[1] ? 'gate-indicator-visible' : ''}`}>
+            <Eye className="w-3 h-3" />
+            <span>Zero-knowledge</span>
+          </div>
+          <div className={`gate-indicator ${indicatorsVisible[2] ? 'gate-indicator-visible' : ''}`}>
+            <Cpu className="w-3 h-3" />
+            <span>Isolated</span>
+          </div>
+          <div className={`gate-indicator ${indicatorsVisible[3] ? 'gate-indicator-visible' : ''}`}>
+            <Radio className="w-3 h-3" />
+            <span>Encrypted</span>
           </div>
         </div>
 
-        <div className="mt-8 text-center animate-fade-in" style={{ animationDelay: '0.3s' }}>
-          <div
-            className="inline-flex items-center gap-3 px-4 py-2 rounded-lg"
-            style={{ background: 'rgba(220, 38, 38, 0.05)', border: '1px solid var(--border-subtle)' }}
-          >
-            <div className="pulse-dot" />
-            <span
-              className="font-mono text-[10px] tracking-wider uppercase"
-              style={{ color: 'var(--text-subtle)' }}
-            >
-              Zero-trust gateway active
-            </span>
+        <div className={`gate-status-bar ${pageLoaded ? 'gate-visible' : ''}`}>
+          <div className="gate-status-item">
+            <div className="gate-status-light gate-status-online" />
+            <span>Systems Online</span>
+          </div>
+          <div className="gate-status-item">
+            <div className="gate-status-light gate-status-online" />
+            <span>DB Connected</span>
+          </div>
+          <div className="gate-status-item">
+            <div className="gate-status-light gate-status-online" />
+            <span>Gateway Secure</span>
           </div>
         </div>
-      </div>
 
-      <div className="w-full max-w-md text-center animate-fade-in mt-auto pt-8" style={{ animationDelay: '0.5s' }}>
-        <div className="flex items-center justify-center gap-4 sm:gap-6 mb-3 flex-wrap">
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-500" style={{ boxShadow: '0 0 6px #10b981' }} />
-            <span className="font-mono text-[9px]" style={{ color: 'var(--text-subtle)' }}>Systems Online</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-500" style={{ boxShadow: '0 0 6px #10b981' }} />
-            <span className="font-mono text-[9px]" style={{ color: 'var(--text-subtle)' }}>DB Connected</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-500" style={{ boxShadow: '0 0 6px #10b981' }} />
-            <span className="font-mono text-[9px]" style={{ color: 'var(--text-subtle)' }}>Gateway Secure</span>
-          </div>
+        <div className={`gate-footer ${pageLoaded ? 'gate-visible' : ''}`}>
+          <span>Unauthorized access is prohibited</span>
         </div>
-        <p
-          className="font-mono text-[9px] tracking-[0.25em] uppercase"
-          style={{ color: 'var(--text-subtle)', opacity: 0.4 }}
-        >
-          Unauthorized access is prohibited
-        </p>
       </div>
     </div>
   );
