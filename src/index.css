@@ -72,15 +72,15 @@
     @apply font-sans transition-colors duration-500;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
   }
 
-  .dark body {
+  html.dark body {
     background:
       radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255, 71, 87, 0.06) 0%, transparent 50%),
       radial-gradient(ellipse 60% 40% at 80% 10%, rgba(0, 212, 255, 0.03) 0%, transparent 40%),
       radial-gradient(ellipse 50% 30% at 20% 20%, rgba(255, 167, 38, 0.02) 0%, transparent 40%),
       linear-gradient(180deg, #080a0d 0%, #0d1117 100%);
-    min-height: 100vh;
   }
 
   ::selection {

@@ -8,8 +8,16 @@
     <meta name="description" content="Sealed Terminal Protocol" />
     <title>DAEMONCROW</title>
   </head>
-  <body>
-    <div id="root"></div>
+  <body style="background: #080a0d; margin: 0;">
+    <div id="root">
+      <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+        <div style="text-align: center;">
+          <div style="width: 40px; height: 40px; border: 2px solid #ff4757; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+          <p style="color: #8b95a5; font-family: monospace; font-size: 10px; margin-top: 16px; letter-spacing: 0.2em;">INITIALIZING</p>
+        </div>
+      </div>
+      <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
