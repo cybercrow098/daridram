@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { DaemonLogo } from './DaemonLogo';
-import { Shield, Lock, Eye, Server, AlertTriangle, CheckCircle, Fingerprint, Wifi, Terminal, Cpu, Radio, Sun, Moon, Send, Zap, Database, Code, Settings, Key, DollarSign, Users, HardDrive, Wrench } from 'lucide-react';
+import { Shield, Lock, Eye, Server, AlertTriangle, CheckCircle, Fingerprint, Wifi, Terminal, Cpu, Send, Zap, Database, Code, Settings, Key, DollarSign, Users, HardDrive, Wrench } from 'lucide-react';
 
 interface AccessGateProps {
   onVerify: (key: string) => Promise<boolean>;
@@ -54,7 +54,6 @@ export function AccessGate({ onVerify, isVerifying, error, onErrorClear }: Acces
   const [showSuccess, setShowSuccess] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [pageLoaded, setPageLoaded] = useState(false);
-  const [isDark, setIsDark] = useState(true);
   const [sectionsVisible, setSectionsVisible] = useState<boolean[]>([false, false, false, false, false, false]);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -139,7 +138,7 @@ export function AccessGate({ onVerify, isVerifying, error, onErrorClear }: Acces
   const canSubmit = isValidLength && !isVerifying;
 
   return (
-    <div className={`gate-page ${isDark ? 'gate-dark' : 'gate-light'}`}>
+    <div className="gate-page">
       <div className="gate-bg-noise" />
       <div className="gate-bg-gradient-1" />
       <div className="gate-bg-gradient-2" />
@@ -148,14 +147,6 @@ export function AccessGate({ onVerify, isVerifying, error, onErrorClear }: Acces
       <div className="gate-orb gate-orb-1" />
       <div className="gate-orb gate-orb-2" />
       <div className="gate-orb gate-orb-3" />
-
-      <button
-        onClick={() => setIsDark(!isDark)}
-        className="gate-theme-toggle"
-        aria-label="Toggle theme"
-      >
-        {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-      </button>
 
       <div className="gate-main">
         <div className={`gate-hero ${pageLoaded ? 'gate-visible' : ''}`}>

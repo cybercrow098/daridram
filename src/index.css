@@ -549,19 +549,6 @@
   transition: background 0.5s ease;
 }
 
-.gate-light {
-  --gate-bg: #f8f9fb;
-  --gate-text: rgba(10, 15, 30, 0.92);
-  --gate-text-dim: rgba(10, 15, 30, 0.6);
-  --gate-text-muted: rgba(10, 15, 30, 0.4);
-  --gate-accent: #dc2626;
-  --gate-accent-bright: #ef4444;
-  --gate-accent-glow: rgba(220, 38, 38, 0.25);
-  --gate-success: #16a34a;
-  --gate-success-glow: rgba(22, 163, 74, 0.3);
-  --gate-border: rgba(10, 15, 30, 0.1);
-}
-
 .gate-bg-noise {
   position: fixed;
   inset: 0;
@@ -569,10 +556,6 @@
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   pointer-events: none;
   z-index: 1;
-}
-
-.gate-light .gate-bg-noise {
-  opacity: 0.02;
 }
 
 .gate-bg-gradient-1 {
@@ -588,10 +571,6 @@
   animation: gate-breathe 10s ease-in-out infinite;
 }
 
-.gate-light .gate-bg-gradient-1 {
-  background: radial-gradient(ellipse 55% 45% at 50% 0%, rgba(220, 38, 38, 0.12) 0%, rgba(200, 40, 60, 0.04) 45%, transparent 75%);
-}
-
 .gate-bg-gradient-2 {
   position: fixed;
   top: 0;
@@ -603,10 +582,6 @@
   pointer-events: none;
   z-index: 2;
   animation: gate-breathe 14s ease-in-out infinite reverse;
-}
-
-.gate-light .gate-bg-gradient-2 {
-  background: radial-gradient(ellipse 45% 35% at 50% 15%, rgba(239, 68, 68, 0.08) 0%, transparent 65%);
 }
 
 @keyframes gate-breathe {
@@ -622,10 +597,6 @@
   z-index: 3;
 }
 
-.gate-light .gate-bg-vignette {
-  background: radial-gradient(ellipse 75% 65% at 50% 50%, transparent 0%, rgba(0, 0, 0, 0.08) 100%);
-}
-
 .gate-bg-grid {
   position: fixed;
   inset: 0;
@@ -636,12 +607,6 @@
   pointer-events: none;
   z-index: 2;
   animation: gate-grid-move 80s linear infinite;
-}
-
-.gate-light .gate-bg-grid {
-  background-image:
-    linear-gradient(rgba(220, 38, 38, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(220, 38, 38, 0.04) 1px, transparent 1px);
 }
 
 @keyframes gate-grid-move {
@@ -684,39 +649,11 @@
   animation: gate-float 20s ease-in-out infinite 4s;
 }
 
-.gate-light .gate-orb-1 { background: rgba(220, 38, 38, 0.06); }
-.gate-light .gate-orb-2 { background: rgba(239, 68, 68, 0.04); }
-.gate-light .gate-orb-3 { background: rgba(185, 28, 28, 0.05); }
-
 @keyframes gate-float {
   0%, 100% { transform: translate(0, 0); }
   25% { transform: translate(35px, -25px); }
   50% { transform: translate(-25px, 35px); }
   75% { transform: translate(25px, 25px); }
-}
-
-.gate-theme-toggle {
-  position: fixed;
-  top: 1.5rem;
-  right: 1.5rem;
-  z-index: 100;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: 1px solid var(--gate-border);
-  border-radius: 50%;
-  color: var(--gate-text-dim);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.gate-theme-toggle:hover {
-  color: var(--gate-accent-bright);
-  border-color: var(--gate-accent);
-  box-shadow: 0 0 20px var(--gate-accent-glow);
 }
 
 .gate-main {
@@ -789,12 +726,6 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
   margin-bottom: 1rem;
-}
-
-.gate-light .gate-brand {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 45%, #ea580c 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
 }
 
 .gate-tagline {
